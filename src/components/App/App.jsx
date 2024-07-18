@@ -1,41 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import ContactForm from '../ContactForm/ContactForm';
 import SearchBox from '../SearchBox/SearchBox';
 import ContactList from '../ContactList/ContactList';
-import initialContactLists from '../../contactList.json';
+import { selectContacts } from '../../redux/contactsSlice';
+import { selectNameFilter } from '../../redux/filtersSlice';
 import css from './App.module.css';
 
 export default function App() {
-  const [contactLists, setContactList] = useState(() => {
-    const savedContacts = localStorage.getItem('contacts');
-    return savedContacts ? JSON.parse(savedContacts) : initialContactLists;
-  });
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectNameFilter);
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contactLists));
-  }, [contactLists]);
-
-  const visibleContact = contactLists.filter((contact) =>
+  const visibleContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
-
-  const deleteContact = (contactId) => {
-    setContactList((prevContact) =>
-      prevContact.filter((contact) => contact.id !== contactId)
-    );
-  };
-
-  const addContact = (newContact) => {
-    setContactList((prevContacts) => [...prevContacts, newContact]);
-  };
 
   return (
     <div className={css.phonebook}>
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={addContact} />
-      <SearchBox value={filter} onFilter={setFilter} />
-      <ContactList contactLists={visibleContact} onDelete={deleteContact} />
+      <ContactForm />
+      <SearchBox />
+      <ContactList contactLists={visibleContacts} />
     </div>
   );
 }
